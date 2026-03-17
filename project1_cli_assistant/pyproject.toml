@@ -1,0 +1,16 @@
+[project]
+name = "cli-assistant"
+version = "0.1.0"
+description = "命令行 AI 助手 —— Tool Use 练习项目"
+requires-python = ">=3.11"
+dependencies = [
+    "openai>=1.0.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.scripts]
+assistant = "assistant.main:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.backends.legacy:build"
