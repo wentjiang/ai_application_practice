@@ -7,7 +7,7 @@
 本项目使用 pyenv 管理 Python 版本，根目录的 `.python-version` 会自动锁定版本。
 
 ```bash
-python --version  # 应显示 Python 3.11.11
+python --version  # 应显示 Python 3.13.3
 ```
 
 ### 2. 创建并激活虚拟环境
