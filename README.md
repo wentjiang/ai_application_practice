@@ -32,6 +32,11 @@ cp .env.example .env
 
 ## 项目列表
 
+### 公共模块：shared_agent
+
+仓库根目录新增了 `shared_agent/`，用于放置可复用的 Agent Tool Use 循环逻辑。
+各项目（例如 `project1_cli_assistant`、后续的项目 2）可以仅维护自己的工具定义，统一复用该公共循环。
+
 ### 项目 1：命令行 AI 助手
 
 ```bash
