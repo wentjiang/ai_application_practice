@@ -45,17 +45,36 @@ def _run_ollama(messages: list[dict], tools_schema: list[dict], tool_handlers: d
     )
 
     local_messages = [*messages]
+    retry_count = 0
+    max_retries = 1  # 最多重试一次以强制工具调用
 
     while True:
         response = client.chat.completions.create(
             model=os.getenv("MODEL", "qwen3:8b"),
             messages=local_messages,
-            tools=tools_schema,
-            tool_choice="auto",
+            tools=tools_schema if tools_schema else None,
+            tool_choice="auto" if tools_schema else None,
         )
 
         message = response.choices[0].message
         tool_calls = message.tool_calls or []
+
+        # 如果首次调用没有触发工具，但消息中有 URL，强制重试一次
+        has_url = any("http://" in str(msg.get("content", "")) or "https://" in str(msg.get("content", "")) 
+                      for msg in local_messages if msg.get("role") == "user")
+        
+        if not tool_calls and has_url and retry_count < max_retries:
+            # 添加显式的工具调用提示
+            local_messages.append({
+                "role": "assistant",
+                "content": message.content or "[无工具调用响应]"
+            })
+            local_messages.append({
+                "role": "user",
+                "content": "⚠️ 重要：请立即调用 fetch_webpage 工具来获取真实网页内容，不要只生成文字描述。"
+            })
+            retry_count += 1
+            continue
 
         if not tool_calls:
             return message.content or ""

@@ -11,6 +11,7 @@ import subprocess
 from typing import Callable
 
 # ── Schema（发给模型的工具说明） ───────────────────────────────
+# function call固定的格式，详见 Ollama 官方文档：https://ollama.com/docs/tools#function-calls
 TOOLS_SCHEMA = [
     {
         "type": "function",

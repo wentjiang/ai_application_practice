@@ -50,6 +50,18 @@ assistant
 ollama run qwen3:8b
 ```
 
+### 项目 2：网页内容总结 Bot
+
+```bash
+pip install -e project2_web_summarizer/
+websum
+```
+
+输入 URL 后，助手会先调用网页抓取工具，再输出：
+- 三句话摘要
+- 关键观点（bullet points）
+- 值得精读评分（1-10）
+
 ---
 
 ## 日常使用
