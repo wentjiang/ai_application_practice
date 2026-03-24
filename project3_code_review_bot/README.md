@@ -18,6 +18,7 @@
 - 审查未提交的改动（默认）
 - 审查已暂存（staged）的改动
 - 审查特定提交或提交范围
+- 🆕 **审查GitHub PR** — 直接传入PR链接，无需克隆代码
 
 ## 快速开始
 
@@ -30,6 +31,7 @@ pip install -e project3_code_review_bot/
 
 ### 2. 使用 codereview 命令
 
+**本地代码Review：**
 ```bash
 # 审查当前未提交的改动
 codereview
@@ -44,10 +46,26 @@ codereview --commit HEAD~1
 codereview --commit commit1..commit2
 ```
 
+**GitHub PR Review（新功能！）：**
+```bash
+# 审查GitHub PR - 完整URL格式
+codereview --pr https://github.com/owner/repo/pull/123
+
+# 审查GitHub PR - 简短格式
+codereview --pr owner/repo/123
+```
+
 ## 工作原理
 
+**本地Review流程：**
 1. **获取代码变动** — 通过 `get_git_diff` 工具读取 git diff 内容
 2. **上下文补充** — 如需要，通过 `read_file` 工具获取完整的文件内容
+3. **智能分析** — Claude 分析代码变动，从安全、性能、规范三个维度评估
+4. **结构化反馈** — 输出格式化的Review报告
+
+**GitHub PR Review流程：**
+1. **解析PR链接** — 从URL提取仓库信息和PR编号
+2. **获取PR Diff** — 调用GitHub API获取PR的完整代码变动
 3. **智能分析** — Claude 分析代码变动，从安全、性能、规范三个维度评估
 4. **结构化反馈** — 输出格式化的Review报告，包含问题描述、严重度和修复建议
 
@@ -55,19 +73,26 @@ codereview --commit commit1..commit2
 
 ```
 project3_code_review_bot/
-├── pyproject.toml          # 项目元数据和依赖
+├── pyproject.toml             # 项目元数据和依赖
 ├── code_reviewer/
 │   ├── __init__.py
-│   ├── main.py            # CLI 入口点
-│   ├── agent.py           # Agent 适配层（调用 shared_agent 的通用循环）
-│   └── tools.py           # 工具定义（get_git_diff、read_file）
-└── README.md              # 本文件
+│   ├── main.py               # CLI 入口点
+│   ├── agent.py              # Agent 适配层（调用 shared_agent 的通用循环）
+│   └── tools.py              # 工具定义（get_git_diff、get_github_pr_diff、read_file）
+├── README.md                 # 项目说明（本文件）
+├── QUICKSTART.md             # 快速开始指南
+├── GITHUB_PR_REVIEW.md       # 🆕 GitHub PR Review 详细指南
+├── INTEGRATION.md            # 集成方案
+└── DEMO.sh                   # 演示脚本
 ```
 
 ## 技术栈
 
 - **LLM 后端**：支持 Ollama（qwen3:8b 等）和 Anthropic Claude API
-- **工具实现**：subprocess 调用 git，文件系统操作
+- **工具实现**：
+  - subprocess 调用 git（本地Review）
+  - requests 调用 GitHub API（GitHub PR Review）
+  - 文件系统操作
 - **架构**：基于 shared_agent 的通用 Tool Use 循环
 
 ## 使用示例
@@ -84,19 +109,26 @@ codereview
 # 获得安全性和性能的反馈后再决定是否修改、提交
 ```
 
-### 场景 2：Review 同学的 PR（基于本地 git）
+### 场景 3：Review 别人的 GitHub PR（无需克隆代码！）
 
 ```bash
-# 拉取目标分支的最新代码
-git fetch origin feature-branch
+# Review一个GitHub PR - 完整URL格式
+codereview --pr https://github.com/numpy/numpy/pull/25000
 
-# 对比你的改动和 feature-branch 的差异
-codereview --commit main..feature-branch
+# 或使用简短格式
+codereview --pr numpy/numpy/25000
 
-# 得到详细的Review意见
+# 立即获得详细的Review意见，无需克隆仓库！
 ```
 
-### 场景 3：集成到 CI/CD 或 Git Hook
+**优势：**
+- ✅ 无需克隆大型仓库
+- ✅ 快速Review他人的PR
+- ✅ 跨仓库协作更便捷
+
+*详见 [GITHUB_PR_REVIEW.md](./GITHUB_PR_REVIEW.md)*
+
+### 场景 4：集成到 CI/CD 或 Git Hook
 
 创建 `.git/hooks/pre-push` 脚本：
 ```bash
@@ -129,6 +161,10 @@ ANTHROPIC_API_PRACTICE_KEY=sk-ant-...
 
 ## 相关文件
 
-- [practice_projects.md](../doc/practice_projects.md) — 项目设计文档
-- [CLAUDE.md](../CLAUDE.md) — 环境配置指南
-- [shared_agent/tool_loop.py](../shared_agent/tool_loop.py) — 通用 Tool Use 循环实现
+- [QUICKSTART.md](./QUICKSTART.md) — 5分钟快速开始指南
+- [GITHUB_PR_REVIEW.md](./GITHUB_PR_REVIEW.md) — 🆕 GitHub PR Review 功能详解
+- [INTEGRATION.md](./INTEGRATION.md) — 5种集成方案（Git hooks、CI/CD等）
+- [DEMO.sh](./DEMO.sh) — 交互式演示脚本
+- [../practice_projects.md](../doc/practice_projects.md) — 项目设计文档
+- [../CLAUDE.md](../CLAUDE.md) — 环境配置指南
+- [../shared_agent/tool_loop.py](../shared_agent/tool_loop.py) — 通用 Tool Use 循环实现
