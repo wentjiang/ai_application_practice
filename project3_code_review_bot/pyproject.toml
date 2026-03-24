@@ -1,0 +1,17 @@
+[project]
+name = "code-review-bot"
+version = "0.1.0"
+description = "自动化代码Review Bot —— Tool Use + 实际工程应用练习项目"
+requires-python = ">=3.13"
+dependencies = [
+    "openai>=1.0.0",
+    "anthropic>=0.40.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.scripts]
+codereview = "code_reviewer.main:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
